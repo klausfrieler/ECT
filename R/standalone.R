@@ -2,9 +2,9 @@ options(shiny.error = browser)
 debug_locally <- !grepl("shiny-server", getwd())
 
 
-#' Standalone ERT
+#' Standalone ECT
 #'
-#' This function launches a standalone testing session for the ERT
+#' This function launches a standalone testing session for the ECT
 #' This can be used for data collection, either in the laboratory or online.
 #' @param title (Scalar character) Title to display during testing.
 #' @param num_items (Scalar integer) Number of items to be adminstered.
@@ -23,10 +23,10 @@ debug_locally <- !grepl("shiny-server", getwd())
 #' @param validate_id (Character scalar or closure) Function for validating IDs or string "auto" for default validation
 #' which means ID should consist only of  alphanumeric characters.
 #' @param take_training (Logical scalar) Whether to include the training phase. Defaults to FALSE
-#' @param ... Further arguments to be passed to \code{\link{ERT}()}.
+#' @param ... Further arguments to be passed to \code{\link{ECT}()}.
 #' @export
 
-ERT_standalone  <- function(title = NULL,
+ECT_standalone  <- function(title = NULL,
                             num_items = 20L,
                             with_id = TRUE,
                             with_feedback = TRUE,
@@ -34,24 +34,24 @@ ERT_standalone  <- function(title = NULL,
                             admin_password = "conifer",
                             researcher_email = "longgoldstudy@gmail.com",
                             languages = c("en", "de"),
-                            dict = ERT::ERT_dict,
+                            dict = ECT::ECT_dict,
                             validate_id = "auto",
                             take_training = FALSE,
                             ...) {
   feedback <- NULL
   if(with_feedback) {
-    feedback <- ERT::ERT_feedback_with_graph()
-    #feedback <- ERT::ERT_feedback_with_score()
+    feedback <- ECT::ECT_feedback_with_graph()
+    #feedback <- ECT::ECT_feedback_with_score()
   }
   elts <- psychTestR::join(
-    if(with_welcome) ERT_welcome_page(dict = dict),
+    if(with_welcome) ECT_welcome_page(dict = dict),
     if(with_id)
       psychTestR::new_timeline(
         psychTestR::get_p_id(prompt = shiny::p(psychTestR::i18n("ENTER_ID"), style = "width:60%;text-align:justify"),
                              button_text = psychTestR::i18n("CONTINUE"),
                              validate = validate_id),
         dict = dict),
-      ERT::ERT(num_items = num_items,
+      ECT::ECT(num_items = num_items,
                with_welcome =  FALSE,
                with_finish = FALSE,
                feedback = feedback,
@@ -59,12 +59,12 @@ ERT_standalone  <- function(title = NULL,
                take_training = take_training,
                ...),
     psychTestR::elt_save_results_to_disk(complete = TRUE),
-    ERT_final_page(dict = dict)
+    ECT_final_page(dict = dict)
   )
   if(is.null(title)){
     #extract title as named vector from dictionary
     title <-
-      ERT::ERT_dict  %>%
+      ECT::ECT_dict  %>%
       as.data.frame() %>%
       dplyr::filter(key == "TESTNAME") %>%
       dplyr::select(-key) %>%

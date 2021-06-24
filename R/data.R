@@ -1,13 +1,13 @@
-#' ERT  dictionary
+#' ECT  dictionary
 #'
-#' The default internationalisation dictionary used by the ERT.
-#' @name ERT_dict
+#' The default internationalisation dictionary used by the ECT.
+#' @name ECT_dict
 #' @docType data
 NULL
 
-#' ERT item bank
+#' ECT item bank
 #'
-#' The ERT's item bank
-#' @name ERT_item_bank
+#' The ECT's item bank
+#' @name ECT_item_bank
 #' @docType data
 NULL

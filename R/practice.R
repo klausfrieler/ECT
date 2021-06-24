@@ -48,7 +48,7 @@ get_practice_page <- function(page_no, answer, audio_dir){
     page <- get_transition_page(answer)
   }
   else{
-    page <- ERT_item(label = sprintf("training%s", page_no),
+    page <- ECT_item(label = sprintf("training%s", page_no),
                      correct_answer = training_answers[page_no],
                      prompt = prompt,
                      audio_dir = audio_dir,

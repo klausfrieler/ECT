@@ -3,10 +3,10 @@ scoring <- function(){
     results <- psychTestR::get_results(state = state,
                                        complete = FALSE,
                                        add_session_info = FALSE) %>% as.list()
-    sum_score <- sum(purrr::map_lgl(results$ERT, function(x) x$correct))
-    total_score <- sum(purrr::map_dbl(results$ERT, function(x) x$total_score))
-    num_same <- sum(purrr::map_dbl(results$ERT, function(x) as.numeric(x$correct_answer == 2)))
-    num_questions <- length(results$ERT)
+    sum_score <- sum(purrr::map_lgl(results$ECT, function(x) x$correct))
+    total_score <- sum(purrr::map_dbl(results$ECT, function(x) x$total_score))
+    num_same <- sum(purrr::map_dbl(results$ECT, function(x) as.numeric(x$correct_answer == 2)))
+    num_questions <- length(results$ECT)
     max_score <- 2 * num_questions - num_same
     perc_correct <- sum_score/num_questions
     psychTestR::save_result(place = state,
@@ -50,16 +50,16 @@ get_prompt <- function(item_number, num_items, practice_page = FALSE) {
 
 main_test <- function(num_items,
                       audio_dir,
-                      dict = ERT::ERT_dict,
+                      dict = ECT::ECT_dict,
                       ...) {
 
   elts <- c()
-  item_bank <- ERT::ERT_item_bank
+  item_bank <- ECT::ECT_item_bank
   item_sequence <- sample(1:nrow(item_bank), num_items)
   for(i in 1:length(item_sequence)){
-    item <- ERT::ERT_item_bank[item_sequence[i],]
+    item <- ECT::ECT_item_bank[item_sequence[i],]
     messagef("Added item %d, stimulus = %s, correct= %d", item_sequence[i], item[1,]$audio_file, item[1,]$correct)
-    item_page <- ERT_item(label = sprintf("q%d", i),
+    item_page <- ECT_item(label = sprintf("q%d", i),
                           correct_answer = item[1,]$correct,
                           prompt = get_prompt(i, num_items, practice_page = FALSE),
                           audio_file = item$audio_file[1],
@@ -70,7 +70,7 @@ main_test <- function(num_items,
   elts
 }
 
-ERT_welcome_page <- function(dict = ERT::ERT_dict){
+ECT_welcome_page <- function(dict = ECT::ECT_dict){
   psychTestR::new_timeline(
     psychTestR::one_button_page(
     body = shiny::div(
@@ -82,7 +82,7 @@ ERT_welcome_page <- function(dict = ERT::ERT_dict){
   ), dict = dict)
 }
 
-ERT_finished_page <- function(dict = ERT::ERT_dict){
+ECT_finished_page <- function(dict = ECT::ECT_dict){
   psychTestR::new_timeline(
     psychTestR::one_button_page(
       body =  shiny::div(
@@ -93,7 +93,7 @@ ERT_finished_page <- function(dict = ERT::ERT_dict){
     ), dict = dict)
 }
 
-ERT_final_page <- function(dict = ERT::ERT_dict){
+ECT_final_page <- function(dict = ECT::ECT_dict){
   psychTestR::new_timeline(
     psychTestR::final_page(
       body = shiny::div(
@@ -112,7 +112,7 @@ ERT_final_page <- function(dict = ERT::ERT_dict){
 #     num_items <- psychTestRCAT::get_num_items_in_test(item)
 #     emotion <- psychTestR::i18n(item[1,]$emotion_i18)
 #     messagef("Showing item %s", item_number)
-#     ERT_item(
+#     ECT_item(
 #       label = paste0("q", item_number),
 #       emotion = emotion,
 #       audio_file = item$audio_file,

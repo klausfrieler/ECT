@@ -121,7 +121,7 @@ audio_NAFC_page_flex <- function(label,
 
 
 
-ERT_item <- function(label = "",
+ECT_item <- function(label = "",
                      audio_file,
                      correct_answer,
                      prompt = "",

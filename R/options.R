@@ -1,5 +1,5 @@
 # Not yet used, kept for the future
-# ERT_options <- function(next_item.criterion,
+# ECT_options <- function(next_item.criterion,
 #                         next_item.estimator,
 #                         next_item.prior_dist = next_item.prior_dist,
 #                         next_item.prior_par = next_item.prior_par,

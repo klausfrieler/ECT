@@ -1,7 +1,7 @@
-#' ERT languages
+#' ECT languages
 #'
-#' Lists the languages available for ERT implementations.
+#' Lists the languages available for ECT implementations.
 #' @export
-ERT_languages <- function() {
+ECT_languages <- function() {
   c("en", "de")
 }

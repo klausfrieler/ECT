@@ -1,6 +1,6 @@
-#' Demo ERT
+#' Demo ECT
 #'
-#' This function launches a demo for the ERT.
+#' This function launches a demo for the ECT.
 #'
 #' @param num_items (Integer scalar) Number of items in the test.
 #' @param feedback (Function) Defines the feedback to give the participant
@@ -16,30 +16,30 @@
 #' @param language The language you want to run your demo in.
 #' Possible languages include English (\code{"en"}), German (\code{"de"}), Russian (\code{"ru"}) and Nederlands (\code{"nl"}).
 #' The first language is selected by default
-#' @param ... Further arguments to be passed to \code{\link{ERT}()}.
+#' @param ... Further arguments to be passed to \code{\link{ECT}()}.
 #' @export
 #'
-ERT_demo <- function(num_items = 3L,
-                     feedback = ERT::ERT_feedback_with_graph(),
+ECT_demo <- function(num_items = 3L,
+                     feedback = ECT::ECT_feedback_with_graph(),
                      admin_password = "demo",
                      researcher_email = "longgoldstudy@gmail.com",
-                     dict = ERT::ERT_dict,
+                     dict = ECT::ECT_dict,
                      language = "en",
                      ...) {
   elts <- psychTestR::join(
-    ERT_welcome_page(dict = dict),
-    ERT::ERT(num_items = num_items,
+    ECT_welcome_page(dict = dict),
+    ECT::ECT(num_items = num_items,
              with_welcome = FALSE,
              take_training = TRUE,
              feedback = feedback,
              dict = dict,
              ...),
-      ERT_final_page(dict = dict)
+      ECT_final_page(dict = dict)
   )
 
   psychTestR::make_test(
     elts,
-    opt = psychTestR::test_options(title = "Expressivity Recognition Test Demo",
+    opt = psychTestR::test_options(title = "Expressivity Comparison Test Demo",
                                    admin_password = admin_password,
                                    researcher_email = researcher_email,
                                    demo = TRUE,
