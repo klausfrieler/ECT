@@ -136,6 +136,7 @@ ECT_item <- function(label = "",
   audio_url <- file.path(audio_dir, audio_file)
   force(correct_answer)
   get_answer <- function(input, state, ...) {
+    #browser()
     answer <- as.numeric(input$last_btn_pressed)
     correct <- correct_answer == answer
     correct_diff <- 0
@@ -153,7 +154,12 @@ ECT_item <- function(label = "",
                      correct_diff = correct_diff,
                      total_score = total_score,
                      stimulus = audio_file)
-    #print(result)
+    #increase item_number
+    item_number <- psychTestR::get_local(key = "item_number", state = state)
+    psychTestR::set_local(key = "item_number", value = item_number + 1L , state = state)
+    messagef("Increased item_number to %d", item_number + 1L)
+
+    result
   }
   audio_NAFC_page_flex(label = label,
                        prompt = prompt,

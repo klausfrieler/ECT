@@ -46,8 +46,7 @@ ECT <- function(num_items = 18L,
     #                                            dict = dict),
     psychTestR::new_timeline(
       main_test(num_items = num_items,
-                audio_dir = audio_dir,
-                dict = dict
+                audio_dir = audio_dir
                 ),
       dict = dict),
     scoring(),

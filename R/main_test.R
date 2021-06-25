@@ -1,3 +1,11 @@
+get_item_sequence <- function(seed = NULL, num_items){
+  #browser()
+  if(!is.null(seed)){
+    set.seed(seed)
+  }
+  sample(1:nrow(ECT::ECT_item_bank), num_items)
+}
+
 scoring <- function(){
   psychTestR::code_block(function(state,...){
     results <- psychTestR::get_results(state = state,
@@ -48,26 +56,76 @@ get_prompt <- function(item_number, num_items, practice_page = FALSE) {
 
 
 
-main_test <- function(num_items,
-                      audio_dir,
-                      dict = ECT::ECT_dict,
-                      ...) {
+# main_test <- function(num_items,
+#                       audio_dir,
+#                       dict = ECT::ECT_dict,
+#                       ...) {
+#
+#   elts <- c()
+#   item_bank <- ECT::ECT_item_bank
+#   item_sequence <- sample(1:nrow(item_bank), num_items)
+#   for(i in 1:length(item_sequence)){
+#     item <- ECT::ECT_item_bank[item_sequence[i],]
+#     messagef("Added item %d, stimulus = %s, correct= %d", item_sequence[i], item[1,]$audio_file, item[1,]$correct)
+#     item_page <- ECT_item(label = sprintf("q%d", i),
+#                           correct_answer = item[1,]$correct,
+#                           prompt = get_prompt(i, num_items, practice_page = FALSE),
+#                           audio_file = item$audio_file[1],
+#                           audio_dir = audio_dir,
+#                           save_answer = TRUE)
+#     elts <- psychTestR::join(elts, item_page)
+#   }
+#   elts
+# }
+#
+create_test_pages <- function(num_items = 20L, audio_dir = "https://media.gold-msi.org/test_materials/ECT") {
+  ret <- psychTestR::code_block(function(state, ...){
+    seed <-  psychTestR::get_session_info(state, complete = F)$p_id %>%
+      digest::sha1() %>%
+      charToRaw() %>%
+      as.integer() %>%
+      sum()
+    item_sequence = get_item_sequence(seed, num_items)
+    print(item_sequence)
+    psychTestR::set_local(key = "item_sequence", value = item_sequence, state = state)
+    psychTestR::set_local(key = "item_number", value = 1L, state = state)
 
-  elts <- c()
-  item_bank <- ECT::ECT_item_bank
-  item_sequence <- sample(1:nrow(item_bank), num_items)
-  for(i in 1:length(item_sequence)){
-    item <- ECT::ECT_item_bank[item_sequence[i],]
-    messagef("Added item %d, stimulus = %s, correct= %d", item_sequence[i], item[1,]$audio_file, item[1,]$correct)
-    item_page <- ECT_item(label = sprintf("q%d", i),
-                          correct_answer = item[1,]$correct,
-                          prompt = get_prompt(i, num_items, practice_page = FALSE),
-                          audio_file = item$audio_file[1],
-                          audio_dir = audio_dir,
-                          save_answer = TRUE)
-    elts <- psychTestR::join(elts, item_page)
+  })
+  for(i in 1:num_items){
+
+    #printf("Created item with %s, %d", correct_answer, nchar(correct_answer))
+    #browser()
+    item <- psychTestR::reactive_page(function(state, ...) {
+      #browser()
+      item_sequence <- psychTestR::get_local("item_sequence", state)
+      item_number <- psychTestR::get_local("item_number", state)
+      #messagef("Current item number: %d", item_number)
+      item <- ECT::ECT_item_bank[item_sequence[item_number],]
+      messagef("Added item #%d with id = %d, stimulus = %s, correct= %d",
+               item_number,
+               item_sequence[item_number],
+               item[1,]$audio_file,
+               item[1,]$correct)
+      item_page <- ECT_item(label = sprintf("q%d", item_number),
+                            correct_answer = item[1,]$correct,
+                            prompt = get_prompt(item_number, num_items, practice_page = FALSE),
+                            audio_file = item$audio_file[1],
+                            audio_dir = audio_dir,
+                            save_answer = TRUE)
+      item_page
+    })
+    ret <- c(ret, item)
+
   }
-  elts
+  #browser()
+
+  ret
+}
+
+main_test <- function(num_items = 20L,
+                      audio_dir = "https://media.gold-msi.org/test_materials/ECT") {
+  elts <- create_test_pages(num_items, audio_dir = audio_dir)
+  return(elts)
 }
 
 ECT_welcome_page <- function(dict = ECT::ECT_dict){
