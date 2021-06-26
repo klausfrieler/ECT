@@ -157,7 +157,7 @@ ECT_item <- function(label = "",
     #increase item_number
     item_number <- psychTestR::get_local(key = "item_number", state = state)
     psychTestR::set_local(key = "item_number", value = item_number + 1L , state = state)
-    messagef("Increased item_number to %d", item_number + 1L)
+    #messagef("Increased item_number to %d", item_number + 1L)
 
     result
   }
