@@ -31,6 +31,26 @@ ECT_feedback_with_score <- function(dict = ECT::ECT_dict) {
   )
 }
 
+ECT_feedback_pie_chart <- function(perc_correct){
+  correct_s <- sprintf("%s (%s%%)", psychTestR::i18n("CORRECT_RAW"), round(perc_correct*1000)/10)
+  incorrect_s <- sprintf("%s (%s%%)", psychTestR::i18n("INCORRECT_RAW"), round((1-perc_correct)*1000)/10)
+
+  data <- tibble(name = c(correct_s, incorrect_s), value = c(perc_correct, 1 - perc_correct))  %>%
+    dplyr::arrange(desc(name)) %>%
+    mutate(ypos = cumsum(value)- 0.5 * value )
+
+  q <- data %>% ggplot2::ggplot(ggplot2::aes(x = "", y = value, fill = name))
+  q <- q + ggplot2::geom_bar(stat = "identity", width = .5, colour = "white")
+  #q <- q + coord_polar("y", start = 0)
+  #q <- q + coord_flip()
+  q <- q + ggplot2::theme_void()
+  q <- q + ggplot2::theme(legend.position = "none")
+  q <- q + ggplot2::geom_text(ggplot2::aes(y = ypos, label = name), color = "white", size = 5)
+  q <- q + ggplot2::scale_fill_brewer(palette = "Set1")
+  plotly::ggplotly(q, width = 600, height = 450, )
+  #q
+}
+
 ECT_feedback_graph_normal_curve <- function(perc_correct, x_min = 40, x_max = 160, x_mean = 100, x_sd = 15) {
   q <-
     ggplot2::ggplot(data.frame(x = c(x_min, x_max)), ggplot2::aes(x)) +
@@ -51,6 +71,7 @@ ECT_feedback_graph_normal_curve <- function(perc_correct, x_min = 40, x_max = 16
   q <- q + ggplot2::ggtitle(main_title)
   plotly::ggplotly(q, width = 600, height = 450)
 }
+
 #' ECT feedback (with graph)
 #'
 #' Here the participant is given textual and graphical feedback at the end of the test.
@@ -59,28 +80,40 @@ ECT_feedback_graph_normal_curve <- function(perc_correct, x_min = 40, x_max = 16
 #' @examples
 #' \dontrun{
 #' ECT_demo(feedback = ECT_feedback_with_score())}
-ECT_feedback_with_graph <- function(dict = ECT::ECT_dict) {
+ECT_feedback_with_graph <- function(dict = ECT::ECT_dict, graph = "pie") {
   psychTestR::new_timeline(
       psychTestR::reactive_page(function(state, ...) {
         #browser()
         results <- psychTestR::get_results(state = state,
                                            complete = TRUE,
                                            add_session_info = FALSE) %>% as.list()
-        x_min <- 40
-        x_max <- 160
-        total_score <- results$ECT$total_score/results$ECT$max_score
-        fake_IQ <- (x_max - x_min) * results$ECT$total_score/results$ECT$max_score + x_min
-        text_finish <- psychTestR::i18n("FEEDBACK",
-                                        html = TRUE,
-                                        sub = list(num_questions = results$ECT$num_questions,
-                                                   num_correct = round(results$ECT$score * results$ECT$num_questions),
-                                                   total_score = fake_IQ,
-                                                   max_score = x_max))
-        norm_plot <- ECT_feedback_graph_normal_curve(total_score)
+        if(graph == "fake_IQ") {#
+          x_min <- 40
+          x_max <- 160
+          total_score <- results$ECT$total_score/results$ECT$max_score
+          fake_IQ <- (x_max - x_min) * results$ECT$total_score/results$ECT$max_score + x_min
+          text_finish <- psychTestR::i18n("FEEDBACK",
+                                          html = TRUE,
+                                          sub = list(num_questions = results$ECT$num_questions,
+                                                     num_correct = round(results$ECT$score * results$ECT$num_questions),
+                                                     total_score = fake_IQ,
+                                                     max_score = x_max))
+          chart <- ECT_feedback_graph_normal_curve(total_score)
+        }
+        else{
+          text_finish <- psychTestR::i18n("FEEDBACK_SHORT",
+                                          html = TRUE,
+                                          sub = list(num_questions = results$ECT$num_questions,
+                                                     num_correct = round(results$ECT$score * results$ECT$num_questions),
+                                                     perc_correct = round(1000 * results$ECT$score)/10))
+          chart <- ECT_feedback_pie_chart(results$ECT$score)
+
+        }
         psychTestR::page(
           ui = shiny::div(
             shiny::p(text_finish, style ="width:60%;text-align:justify"),
-            shiny::p(norm_plot),
+            shiny::p(chart),
+            #shiny::plotOutput(chart),
             shiny::p(psychTestR::trigger_button("next", psychTestR::i18n("CONTINUE")))
           )
         )

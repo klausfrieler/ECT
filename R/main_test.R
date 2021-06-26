@@ -1,4 +1,4 @@
-get_item_sequence <- function(seed = NULL, num_items){
+get_item_sequence2 <- function(seed = NULL, num_items){
   #browser()
   if(!is.null(seed)){
     set.seed(seed)
@@ -6,6 +6,43 @@ get_item_sequence <- function(seed = NULL, num_items){
   sample(1:nrow(ECT::ECT_item_bank), num_items)
 }
 
+get_item_sequence <- function(seed = NULL, num_items, by_order = TRUE){
+  if(!is.null(seed)){
+    set.seed(seed)
+  }
+
+  songs <- unique(ECT::ECT_item_bank$song)
+  if(num_items > length(songs)){
+    songs <- rep(songs, ceiling(num_items/length(songs)))
+  }
+  if(by_order){
+    signature <- tibble(song = sample(songs, num_items),
+                        time = sample(rep(c(5, 10), each = ceiling(num_items/2)), num_items),
+                        order = sample(rep(c(-1, 0, 1), each = ceiling(num_items/3)), num_items))
+    purrr::map_int(1:nrow(signature), function(i){
+      #browser()
+      ECT::ECT_item_bank %>% filter(song == signature[i,]$song,
+                                    time == signature[i,]$time,
+                                    order == signature[i,]$order) %>%
+        dplyr::sample_n(1) %>%
+        mutate(item_number = as.integer(item_number)) %>%
+        pull(item_number)
+    })
+  } else{
+    signature <- tibble(song = sample(songs, num_items),
+                        time = sample(rep(c(5, 10), each = num_items/2)),
+                        same = sample(rep(c(TRUE, FALSE), each = num_items/2)))
+
+    purrr::map_int(1:nrow(signature), function(i){
+      ECT::ECT_item_bank %>% filter(song == signature[i,]$song,
+                                    time == signature[i,]$time,
+                                    same == signature[i,]$same) %>%
+        dplyr::sample_n(1) %>%
+        mutate(item_number = as.integer(item_number)) %>%
+        pull(item_number)
+    })
+  }
+}
 scoring <- function(){
   psychTestR::code_block(function(state,...){
     results <- psychTestR::get_results(state = state,
@@ -18,8 +55,8 @@ scoring <- function(){
     max_score <- 2 * num_questions - num_same
     perc_correct <- sum_score/num_questions
     psychTestR::save_result(place = state,
-                 label = "score",
-                 value = perc_correct)
+                            label = "score",
+                            value = perc_correct)
     psychTestR::save_result(place = state,
                              label = "num_questions",
                              value = num_questions)
@@ -86,7 +123,6 @@ create_test_pages <- function(num_items = 20L, audio_dir = "https://media.gold-m
       as.integer() %>%
       sum()
     item_sequence = get_item_sequence(seed, num_items)
-    print(item_sequence)
     psychTestR::set_local(key = "item_sequence", value = item_sequence, state = state)
     psychTestR::set_local(key = "item_number", value = 1L, state = state)
 
