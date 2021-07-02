@@ -39,14 +39,16 @@ ECT_feedback_pie_chart <- function(perc_correct){
     dplyr::arrange(desc(name)) %>%
     mutate(ypos = cumsum(value)- 0.5 * value )
 
-  q <- data %>% ggplot2::ggplot(ggplot2::aes(x = "", y = value, fill = name))
+  q <- data %>% ggplot2::ggplot(ggplot2::aes(x = name, y = value, fill = name))
   q <- q + ggplot2::geom_bar(stat = "identity", width = .5, colour = "white")
   #q <- q + coord_polar("y", start = 0)
   #q <- q + coord_flip()
-  q <- q + ggplot2::theme_void()
+  q <- q + ggplot2::theme_minimal()
+  q <- q + scale_y_continuous(labels = scales::percent)
   q <- q + ggplot2::theme(legend.position = "none")
-  q <- q + ggplot2::geom_text(ggplot2::aes(y = ypos, label = name), color = "white", size = 5)
-  q <- q + ggplot2::scale_fill_brewer(palette = "Set1")
+  q <- q + ggplot2::labs(x = "", y = "")
+  #q <- q + ggplot2::geom_text(ggplot2::aes(x = name, y = .1, label = name), color = "white", size = 5)
+  q <- q + ggplot2::scale_fill_brewer(palette = "Set1", direction = -1)
   plotly::ggplotly(q, width = 600, height = 450, )
   #q
 }
