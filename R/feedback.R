@@ -113,7 +113,7 @@ ECT_feedback_with_graph <- function(dict = ECT::ECT_dict, graph = "pie") {
         }
         psychTestR::page(
           ui = shiny::div(
-            shiny::p(text_finish, style ="width:60%;text-align:justify"),
+            shiny::p(text_finish, style ="width:60%;text-align:center"),
             shiny::p(chart),
             #shiny::plotOutput(chart),
             shiny::p(psychTestR::trigger_button("next", psychTestR::i18n("CONTINUE")))

@@ -131,7 +131,7 @@ ECT_item <- function(label = "",
                      get_answer = NULL,
                      instruction_page = FALSE
 ){
-  prompt <- shiny::div(prompt, shiny::p(audio_file, style = "text-size:10px;color:blue"))
+  #prompt <- shiny::div(prompt, shiny::p(audio_file, style = "text-size:10px;color:blue"))
   choices <- c(psychTestR::i18n("ANSWER_FIRST"), psychTestR::i18n("ANSWER_SAME"), psychTestR::i18n("ANSWER_SECOND"))
   audio_url <- file.path(audio_dir, audio_file)
   force(correct_answer)
